@@ -17,7 +17,8 @@ class Foo3 {
 
 
 object Main extends App {
-  val mock = new Mock[Foo3]
-  val stubObject = MockMacros.when(mock)
-  println(stubObject.fooify(3))
+ val mock = MockMacros.mock[Foo3]
+ println(mock.mockStuff)
+ val stubObject = MockMacros.when(mock)
+ println(stubObject.fooify(3))
 }

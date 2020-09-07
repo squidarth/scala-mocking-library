@@ -8,15 +8,9 @@ class MockContext {
 
 }
 
-class Mock[T: WeakTypeTag] {
-
-
+trait Mock[T] {
+    def mockStuff = 100
 }
-//
-//class OngoingStubbing[T](mock: Mock[T])
-//   {
-//    def getMock = mock
-//}
 
 object MockMacros {
   def when[T](mock: Mock[T]) : T = macro whenImpl[T]
@@ -25,7 +19,25 @@ object MockMacros {
     import c.universe._
 
     val mockingType = weakTypeOf[T]
-    val className = weakTypeOf[T].getClass().getName()
+
+    val result = q"""new ${mockingType.resultType}() {
+        override def fooify(s: Int) = s + 6 + ${mock}.mockStuff
+    }"""
+    c.Expr(result)
+  }
+
+  def mock[T] : T with Mock[T] = macro mockImpl[T]
+  def mockImpl[T: c.WeakTypeTag](c: blackbox.Context): c.Expr[T] = {
+    import c.universe._
+
+    val mockingType = weakTypeOf[T]
+    val result = q"""new ${mockingType.resultType} with Mock[${mockingType.resultType}] {
+        override def fooify(s: Int) = s + 7
+    }"""
+    c.Expr(result)
+  }
+}
+
 //    val result = Block(
 //        List(
 //            ClassDef(
@@ -38,19 +50,3 @@ object MockMacros {
 //                ))),
 //                callConstructor(New(Ident(anon)))
 //    )
-    val result = q"""new ${mockingType.resultType}() {
-        override def fooify(s: Int) = s + 6
-    }"""
-    c.Expr(result)
-  }
-
-  def mock[T](obj: T) : Mock[T] = macro mockImpl[T]
-  def mockImpl[T](c: blackbox.Context)(obj: c.Expr[T]): c.Expr[Mock[T]] = {
-    import c.universe._
-      c.Expr(q"""
-      
-      """)
-
-  }
-
-}
