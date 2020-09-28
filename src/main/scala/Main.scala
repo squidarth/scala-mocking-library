@@ -3,18 +3,18 @@ import scala.reflect.macros.blackbox
 import scala.reflect.runtime.universe._
 import shapeless._
 import shapeless.ops.hlist
+import MockHelpers._
 
 class Foo3 {
   def fooify(s: Int) = s + 3
+  def barify(t: String) = t + "bar"
 }
 
-object Main extends App with MockMatchers {
-  val fooObject = new Foo3
-
-
-val mock = MockMacros.mock[Foo3]
-//println(mock.fooify(10))
-MockMacros.when(mock.fooify(7)).thenReturn(200)
-println(mock.fooify(7))
+object Main extends App with Mocking {
+  val myMock = mock[Foo3]
+  when(myMock.fooify(7)).thenReturn(200)
+  when(myMock.barify("some string")).thenReturn("yet another string")
+  println(myMock.fooify(7))
+  println(myMock.barify("some string"))
 
 }

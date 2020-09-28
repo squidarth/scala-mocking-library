@@ -32,7 +32,7 @@ class MockContext {
 
 trait Mock[T]
 
-trait MockMatchers {
+trait Mocking {
   import scala.language.implicitConversions
 
   implicit val mockContext = new MockContext
@@ -44,7 +44,7 @@ class Stubbing[T](implicit val mockContext: MockContext) {
   }
 }
 
-object MockMacros {
+object MockHelpers {
   import scala.language.experimental.macros
   import scala.language.implicitConversions
 
