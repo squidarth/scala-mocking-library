@@ -23,7 +23,9 @@ class SampleSpec extends AnyFlatSpec
     val foo = new Foo("so what")
     val mockedFoo =  mock[Foo]
 
-    (mockedFoo.fooify _).expects("blah").returning("blah").once()
+    println(2.toString)
+    (2.toString _).when()
+    val blah = (mockedFoo.fooify _).expects("blah").returning("blah").once()
     mockedFoo.fooify("blah")
   }
 
