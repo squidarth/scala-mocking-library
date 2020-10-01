@@ -1,12 +1,12 @@
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 import scala.reflect.runtime.universe._
-import shapeless._
+import scala.collection.mutable.Buffer
 
 class MockUndefinedException(s:String) extends Exception(s)
 
 class MockContext {
-  var handlers : Seq[Any] = Seq[Any]()
+  val handlers : Buffer[Any] = Buffer[Any]()
 
   var currentMockMethod: (Mock[_], String, Any) = null 
 
@@ -14,7 +14,7 @@ class MockContext {
     val fullCall = currentMockMethod match {
       case (mock, methodName, arg) => (mock, methodName, arg, value)
     }
-    handlers = handlers ++ Seq(fullCall)
+     handlers.append(fullCall)
   }
 
   def setCurrentMockMethod[Arg](mock: Mock[_], funcName: String, arg: Arg) = {

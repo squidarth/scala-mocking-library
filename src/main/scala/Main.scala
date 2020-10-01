@@ -16,5 +16,4 @@ object Main extends App with Mocking {
   when(myMock.barify("some string")).thenReturn("yet another string")
   println(myMock.fooify(7))
   println(myMock.barify("some string"))
-
 }

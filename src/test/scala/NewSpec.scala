@@ -12,7 +12,6 @@ class Foo2(val string: String) {
 
 class NewSpec extends AnyFlatSpec 
   with should.Matchers 
-  with MockMatchers
   {
 
     "Test mocking" should "work correctly" in {
