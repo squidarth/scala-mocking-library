@@ -5,13 +5,13 @@ import shapeless._
 import shapeless.ops.hlist
 import MockHelpers._
 
-class Foo3 {
+class Foo {
   def fooify(s: Int) = s + 3
   def barify(t: String) = t + "bar"
 }
 
 object Main extends App with Mocking {
-  val myMock = mock[Foo3]
+  val myMock = mock[Foo]
   when(myMock.fooify(7)).thenReturn(200)
   when(myMock.barify("some string")).thenReturn("yet another string")
   println(myMock.fooify(7))
