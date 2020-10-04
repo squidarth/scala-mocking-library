@@ -106,8 +106,6 @@ object MockHelpers {
         }
       }
 
-      val mokney = "bar m againe"
-      
       val name = method.name
       /* This currently only works with methods that have a single
        * parameter */
