@@ -3,6 +3,20 @@ import scala.reflect.macros.whitebox
 import scala.reflect.runtime.universe._
 import scala.collection.mutable.Buffer
 
+/* This is a library that supports creating "mock" objects
+ * that have an interface that complies with a particular
+ * class, but has dummy values, supplied by a user, for
+ * the purpose of testing.
+ * 
+ * Usage:
+ * 
+ * // fooMock is an object with the same interface as Foo
+ * val fooMock = mock[Foo]
+ * // when the fooify method is called with 3, it will now
+ * return 10
+ * when(fooMock.fooify(3)).thenReturn(10)
+ *
+*/
 class MockUndefinedException(s:String) extends Exception(s)
 
 class MockContext {
@@ -21,6 +35,9 @@ class MockContext {
     currentMockMethod = (mock, funcName, arg)
   }
 
+  /* Given a mock object, function name, and argument, return
+   * a matching return value if there is one.
+   */
   def findMatchingHandler(mock: Mock[_], funcName: String, arg: Any): Option[Any] = {
     handlers.collect { handler =>
       handler match {
@@ -31,11 +48,10 @@ class MockContext {
   }
 }
 
+/* This trait exists for better type-checking in the MockContext class */
 trait Mock[T]
 
 trait Mocking {
-  import scala.language.implicitConversions
-
   implicit val mockContext = new MockContext
 }
 
@@ -47,7 +63,6 @@ class Stubbing[T](implicit val mockContext: MockContext) {
 
 object MockHelpers {
   import scala.language.experimental.macros
-  import scala.language.implicitConversions
 
   def when[T](getReturnVal: => T)(implicit mockContext: MockContext): Stubbing[T] = {
     try {
@@ -69,11 +84,22 @@ object MockHelpers {
     }
 
     val mockingType = weakTypeOf[T]
+    /* By default, `members` returns fields and methods
+     * that are common to all objects. Since we do not
+     * want to override all of these, we filter out the ones
+     * that belong to Object.
+     * 
+     * This logic I borrowed from:https://github.com/paulbutcher/ScalaMock/blob/master/shared/src/main/scala/org/scalamock/clazz/MockMaker.scala#L308
+     * 
+     */
     val methodDefs = mockingType.members.filter { member => 
       member.isMethod && !member.isConstructor && !isMemberOfObject(member) && !member.isPrivate && !member.isFinal
     }.map { member => 
       val method = member.asMethod
       val returnType = method.returnType
+      /* It's required that param lists are a sequence of 
+       * ValDefs
+       */
       val paramsString = method.paramLists.map { paramList => 
         paramList.map {  symbol =>
           q"""val ${symbol.name.toTermName}: ${symbol.typeSignature}"""
@@ -81,6 +107,8 @@ object MockHelpers {
       }
       
       val name = method.name
+      /* This currently only works with methods that have a single
+       * parameter */
       val firstParamName = method.paramLists.headOption.flatMap(_.headOption).map { symbol => symbol.name}.get
 
       q"""
